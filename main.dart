@@ -2,15 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'screens/login_screen.dart';
-import 'screens/register_screen.dart';
-import 'screens/blank_screen.dart';
-import 'screens/language_selector.dart';
+import 'package:provider/provider.dart';
+import 'login_screen.dart';
+import 'register_screen.dart';
+import 'blank_screen.dart';
+import 'language_selector.dart';
+import 'theme_notifier.dart';
 
 void main() {
   sqfliteFfiInit();
   databaseFactory = databaseFactoryFfi;
-  runApp(const SkyptApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => ThemeNotifier(),
+      child: const SkyptApp(),
+    ),
+  );
 }
 
 class SkyptApp extends StatefulWidget {
@@ -38,35 +45,38 @@ class _SkyptAppState extends State<SkyptApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'SKYPT Gestão 3D',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      locale: _selectedLocale ?? const Locale('en'),
-      supportedLocales: AppLocalizations.supportedLocales,
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      debugShowCheckedModeBanner: false,
-      home: _userId == null
-          ? (_showRegister
-              ? RegisterScreen(
-                  onLoginTap: () => setState(() => _showRegister = false),
-                )
-              : LoginScreen(
-                  onRegisterTap: () => setState(() => _showRegister = true),
-                  onLoginSuccess: _onLoginSuccess,
-                ))
-          : (_selectedLocale == null
-              ? LanguageSelectorPage(
-                  onSelectLocale: _onLocaleSelected,
-                )
-              : BlankScreen(userId: _userId!)),
+    return Consumer<ThemeNotifier>(
+      builder: (context, themeNotifier, child) {
+        return MaterialApp(
+          title: 'SKYPT Gestão 3D',
+          theme: themeNotifier.lightTheme,
+          darkTheme: themeNotifier.darkTheme,
+          themeMode: themeNotifier.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+          locale: _selectedLocale ?? const Locale('en'),
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          debugShowCheckedModeBanner: false,
+          home: _userId == null
+              ? (_showRegister
+                  ? RegisterScreen(
+                      onLoginTap: () => setState(() => _showRegister = false),
+                    )
+                  : LoginScreen(
+                      onRegisterTap: () => setState(() => _showRegister = true),
+                      onLoginSuccess: _onLoginSuccess,
+                    ))
+              : (_selectedLocale == null
+                  ? LanguageSelectorPage(
+                      onSelectLocale: _onLocaleSelected,
+                    )
+                  : BlankScreen(userId: _userId!)),
+        );
+      },
     );
   }
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import '../db/database_helper.dart';
+import 'package:provider/provider.dart';
+import 'database_helper.dart';
+import 'theme_notifier.dart';
 
 // ====================
 // MODELOS DE DADOS
@@ -1306,26 +1308,48 @@ class SettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Text("Definições", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 24),
-          Text("Preço da luz atual: €${precoKwhUser.toStringAsFixed(3)} por kWh"),
-          const SizedBox(height: 8),
-          ElevatedButton.icon(
-            icon: const Icon(Icons.edit),
-            label: const Text("Alterar preço da luz"),
-            onPressed: onEditarPrecoKwh,
+    return Consumer<ThemeNotifier>(
+      builder: (context, themeNotifier, child) {
+        return Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text("Definições", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 24),
+              Card(
+                child: ListTile(
+                  leading: Icon(themeNotifier.isDarkMode ? Icons.dark_mode : Icons.light_mode),
+                  title: const Text("Tema"),
+                  subtitle: Text(themeNotifier.isDarkMode ? "Modo escuro" : "Modo claro"),
+                  trailing: Switch(
+                    value: themeNotifier.isDarkMode,
+                    onChanged: (value) {
+                      themeNotifier.setTheme(value);
+                    },
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Card(
+                child: ListTile(
+                  leading: const Icon(Icons.electric_bolt),
+                  title: const Text("Preço da luz"),
+                  subtitle: Text("€${precoKwhUser.toStringAsFixed(3)} por kWh"),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.edit),
+                    onPressed: onEditarPrecoKwh,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 32),
+              const Text(
+                "Outras definições poderão ser acrescentadas futuramente.",
+                style: TextStyle(fontSize: 16, color: Colors.grey),
+              ),
+            ],
           ),
-          const SizedBox(height: 32),
-          const Text(
-            "Outras definições poderão ser acrescentadas futuramente.",
-            style: TextStyle(fontSize: 16, color: Colors.grey),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
