@@ -1,0 +1,12 @@
+{
+  "@@locale": "en",
+  "appTitle": "SKYPT 3D Management",
+  "login": "Login",
+  "register": "Register",
+  "selectLanguage": "Select Language",
+  "chooseYourLanguage": "Choose your language",
+  "english": "English",
+  "portuguese": "Portuguese",
+  "spanish": "Spanish",
+  "welcome": "Welcome, {name}!"
+}
